@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="a8e8ed8359904ba0a07de930331649eb" Name="Diagram1">
+        <EntityTypeShape EntityType="ecommModel.tblAdminLogin" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="ecommModel.tblBanner" Width="1.5" PointX="9.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="ecommModel.tblbrand" Width="1.5" PointX="3" PointY="3.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="ecommModel.tblCart" Width="1.5" PointX="7.5" PointY="6.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="ecommModel.tblCategory" Width="1.5" PointX="0.75" PointY="6.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="ecommModel.tblColor" Width="1.5" PointX="5.25" PointY="2" IsExpanded="true" />
+        <EntityTypeShape EntityType="ecommModel.tblOrderDetail" Width="1.5" PointX="10.5" PointY="6.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="ecommModel.tblOrder" Width="1.5" PointX="8.25" PointY="21.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="ecommModel.tblOrderStatu" Width="1.5" PointX="6" PointY="20.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="ecommModel.tblProAttr" Width="1.5" PointX="7.5" PointY="2.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="ecommModel.tblProduct" Width="1.5" PointX="5.25" PointY="4.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="ecommModel.tblProImage" Width="1.5" PointX="7.5" PointY="18.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="ecommModel.tblRegistration" Width="1.5" PointX="6" PointY="23.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="ecommModel.tblSubCategory" Width="1.5" PointX="3" PointY="6.875" IsExpanded="true" />
+        <AssociationConnector Association="ecommModel.FK_tblProduct_tblbrand" ManuallyRouted="false" />
+        <AssociationConnector Association="ecommModel.FK__tblCarts__proAtt__571DF1D5" ManuallyRouted="false" />
+        <AssociationConnector Association="ecommModel.FK__tblCarts__proId__5812160E" ManuallyRouted="false" />
+        <AssociationConnector Association="ecommModel.FK__tblSubCat__catId__6383C8BA" ManuallyRouted="false" />
+        <AssociationConnector Association="ecommModel.FK_tblProduct_tblCategory" ManuallyRouted="false" />
+        <AssociationConnector Association="ecommModel.FK_tblProImages_tblColor" ManuallyRouted="false" />
+        <AssociationConnector Association="ecommModel.FK__tblOrderD__order__59063A47" ManuallyRouted="false" />
+        <AssociationConnector Association="ecommModel.FK__tblOrderD__produ__59FA5E80" ManuallyRouted="false" />
+        <AssociationConnector Association="ecommModel.FK__tblOrderD__produ__5AEE82B9" ManuallyRouted="false" />
+        <AssociationConnector Association="ecommModel.FK__tblOrders__custo__5BE2A6F2" ManuallyRouted="false" />
+        <AssociationConnector Association="ecommModel.FK__tblOrders__order__5CD6CB2B" ManuallyRouted="false" />
+        <AssociationConnector Association="ecommModel.FK_tblProImages_tblProduct" ManuallyRouted="false" />
+        <AssociationConnector Association="ecommModel.FK__tblProIma__produ__628FA481" ManuallyRouted="false" />
+        <AssociationConnector Association="ecommModel.FK_tblProduct_tblSubCategory" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

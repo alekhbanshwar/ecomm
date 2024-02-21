@@ -1,0 +1,103 @@
+﻿@using System.Data
+@using System.Data.SqlClient
+@using System.Configuration
+@{
+    SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["myCon"] + "");
+}
+@{
+    ViewBag.Title = "SubCategory";
+    Layout = "~/Views/Shared/adminLayout.cshtml";
+}
+
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-lg-flex align-items-center mb-4 gap-3">
+                    <div class="position-relative">
+                        <a href="javascript:;" class="btn btn-primary  mt-2 mt-lg-0">Sub Category</a>
+                    </div>
+                    <div class="ms-auto"><a href="~/SubCategory/Manage_SubCategory" class="btn btn-primary  mt-2 mt-lg-0"><i class="bx bxs-plus-square"></i>Add Sub Category</a></div>
+                </div>
+
+                <hr />
+                <div class="table-responsive">
+                    @{
+                        var Message = TempData["Message"] as string;
+                        if (!string.IsNullOrEmpty(Message))
+                        {
+                            <script>
+                         alert("@Html.Raw(Message)");
+                            </script>
+                        }
+                    }
+                    <table id="example" class="table table-striped table-bordered" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>SubCategory</th>
+                                <th>Category</th>
+                                <th>Active / Non-Active</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+
+
+                                DataTable data = ViewData["data"] as DataTable;
+                                int count = 0;
+                                foreach (DataRow dr in data.Rows)
+                                {
+                                    int i = count + 1;
+                                    <tr>
+                                        <td>@i</td>
+                                        <td>@dr["subCatName"].ToString()</td>
+                                        <td>@dr["catName"].ToString()</td>
+                                        <td>
+                                            @{
+                                                int isDel = Convert.ToInt32(dr["isDel"]);
+                                                if (isDel == 0)
+                                                {
+                                                    <a href="~/SubCategory/Status?id=@dr["subCatId"]&&status=@isDel" class="btn btn-primary btn-sm px-4">Active</a>
+                                                }
+                                                else if (isDel == 1)
+                                                {
+                                                    <a href="~/SubCategory/Status?id=@dr["subCatId"]&&status=@isDel" class="btn btn-danger btn-sm px-4">Deactive</a>
+                                                }
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="d-flex order-actions">
+
+
+                                                <a href="~/SubCategory/Update_Manage_SubCategory?subCatId=@dr["subCatId"].ToString()&&catId=@dr["catId"]" style="border:1px solid "><i class="bx bxs-edit"></i></a>
+                                                <a href="~/SubCategory/Delete_SubCategory?id=@dr["subCatId"].ToString()" class="ms-3" style="border:1px solid " onclick="return confirm('Are You Sure Want To Delete This Subcategory?')"><i class="bx bxs-trash"></i></a>
+                                               
+                                            </div>
+                                        </td>
+
+                                    </tr>
+                                    count++;
+                                }
+
+                            }
+
+
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>#</th>
+                                <th>SubCategory</th>
+                                <th>Category</th>
+                                <th>Active / Non-Active</th>
+                                <th>Action</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

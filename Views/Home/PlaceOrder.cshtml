@@ -1,0 +1,19 @@
+﻿
+@{
+    ViewBag.Title = "PlaceOrder";
+    Layout = "~/Views/Shared/_homeLayout.cshtml";
+}
+
+
+<section class="flat-row main-shop">
+    <div class="container" style="text-align:center;">
+        <h3>Please don't refresh page again</h3>
+        <h1 style="color:darkseagreen;">Your order has been confirmed.</h1><br />
+        <p style="font-weight:bold;">
+            Order ID:
+            <span style="font-weight:bold;color:#f62440">@ViewBag.id</span>
+        </p>
+        <a href="~/Home/Order" class="btn btn-outline-danger">Go To Order</a>
+    </div>
+</section>
+

@@ -1,0 +1,181 @@
+﻿@model ecomm.Models.UploadImages
+@using System.Data
+@using System.Data.SqlClient
+@using System.Configuration
+@{
+    SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["myCon"] + "");
+}
+@{
+    ViewBag.Title = "Upload_ProImages";
+    Layout = "~/Views/Shared/adminLayout.cshtml";
+}
+
+<div class="card">
+    <div class="card-body p-4">
+        <h5 class="card-title">Product Images</h5>
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">
+                <strong>Success : </strong> @TempData["SuccessMessage"]
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">
+                <strong>Error : </strong>@TempData["ErrorMessage"]
+            </div>
+        }
+        <hr />
+        <div class="form-body mt-4">
+            <div class="row">
+                <div class="col-lg-12">
+                    <form method="post" action="~/Product/Product_Attr" enctype="multipart/form-data">
+                        @Html.AntiForgeryToken()
+
+                        <div class="border border-3 p-4 rounded">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Product Id</label>
+                                        <input type="text" class="form-control" name="proId" value="@ViewBag.id">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Product Images</label>
+                                        <input type="file" class="form-control" multiple name="files">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Color</label>
+                                        <select name="colorId" class="form-control">
+                                            <option value="">-- Color --</option>
+                                            @{
+
+                                                string query = "SELECT * FROM tblColor where isDel='false' order by colName";
+                                                SqlDataAdapter sda = new SqlDataAdapter(query, con);
+                                                DataTable dtcolor = new DataTable();
+
+                                                sda.Fill(dtcolor);
+                                                con.Close();
+
+                                                foreach (DataRow drcolor in dtcolor.Rows)
+                                                {
+
+                                                    <option value="@drcolor["colId"]">
+                                                        @drcolor["colName"]
+                                                    </option>
+
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Qty</label>
+                                        <input type="number" name="qty" class="form-control" placeholder="Enter Quantity" />
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Size</label>
+                                        <select class="form-control" name="size">
+                                            <option value="">-- Size --</option>
+                                            <option value="L">L</option>
+                                            <option value="M">M</option>
+                                            <option value="S">S</option>
+                                            <option value="XL">XL</option>
+                                            <option value="XS">XS</option>
+                                            <option value="XXL">XXL</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                            <div class="col-12">
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary">Save Product Images</button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+
+            </div><!--end row-->
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body p-4">
+        <table id="example" class="table table-striped table-bordered" style="width:100%">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Product Image / Color</th>
+                    <th>Quantity /Size </th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+
+
+
+                    if (con.State == ConnectionState.Closed)
+                    {
+                        con.Open();
+
+                    }
+                    int id = ViewBag.id;
+                    int count = 0;
+
+                    SqlCommand cmd = new SqlCommand("sp_ProductAttr", con);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@proId", id);
+                    cmd.Parameters.AddWithValue("@Action", "S");
+                    SqlDataReader sdrc = cmd.ExecuteReader();
+                    DataTable dtc = new DataTable();
+
+                    dtc.Load(sdrc);
+                    con.Close();
+
+                    foreach (DataRow drc in dtc.Rows)
+                    {
+                        int i = count + 1;
+                        <tr>
+                            <td>@i</td>
+                            <td>
+                                <img src="~/Upload/Product/ProductAttrImages/@drc["proAttrImage"].ToString()" alt="@drc["proAttrImage"]" style="height:50px" /> &nbsp; @drc["colName"].ToString()
+                            </td>
+                            <td>@drc["qty"].ToString() / @drc["size"].ToString()</td>
+                            <td>
+                                <div class="d-flex order-actions">
+                                    <a href="~/Admin/Delete_ProImages?id=@drc["proAttrId"].ToString()&&imageUrl=~/Upload/Product/ProductAttrImages/@drc["proAttrImage"].ToString()" class="ms-3" style="border:1px solid " onclick="return confirm('Are You Sure Want To Delete This Product Images?')"><i class="bx bxs-trash"></i></a>
+                                </div>
+                            </td>
+                        </tr>
+                        count++;
+                    }
+
+                }
+
+
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th>#</th>
+                    <th>Product Image</th>
+                    <th>Quantity</th>
+                    <th>Action</th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+

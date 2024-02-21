@@ -1,0 +1,94 @@
+﻿@using System.Data
+@using System.Data.SqlClient
+@using System.Configuration
+@{
+    ViewBag.Title = "Users";
+    Layout = "~/Views/Shared/adminLayout.cshtml";
+
+    SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["myCon"] + "");
+}
+
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-lg-flex align-items-center mb-4 gap-3">
+                    <div class="position-relative">
+                        <a href="~/Admin/Users" class="btn btn-primary  mt-2 mt-lg-0">@ViewBag.Title</a>
+                    </div>
+                </div>
+
+                <hr />
+                <div class="table-responsive">
+
+
+                    <table id="example" class="table table-striped table-bordered" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>User Name</th>
+                                <th>User Email</th>
+                                <th>Mobile Number</th>
+                                <th>Password</th>
+                                <th> City </th>
+                                <th>State</th>
+                                <th>ZipCode</th>
+                                <th>Address</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                if (con.State == ConnectionState.Closed)
+                                {
+                                    con.Open();
+                                }
+                                int count = 0;
+                                string query = "SELECT * FROM tblRegistration where isDel='false' order by UserName asc";
+                                SqlDataAdapter sda = new SqlDataAdapter(query, con);
+                                DataTable dt = new DataTable();
+
+                                sda.Fill(dt);
+                                con.Close();
+
+                                foreach (DataRow dr in dt.Rows)
+                                {
+                                    int i = count + 1;
+                                    <tr>
+                                        <td>@i</td>
+                                        <td>@dr["UserName"].ToString()</td>
+                                        <td>@dr["UserEmail"].ToString()</td>
+                                        <td>@dr["MobileNumber"].ToString()</td>
+                                        <td>@dr["Password"].ToString()</td>
+                                        <td>@dr["City"].ToString()</td>
+                                        <td>@dr["State"].ToString()</td>
+                                        <td>@dr["ZipCode"].ToString()</td>
+                                        <td>@dr["Address"].ToString()</td>
+                                    </tr>
+                                    count++;
+                                }
+
+                            }
+
+
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>#</th>
+                                <th>User Name</th>
+                                <th>User Email</th>
+                                <th>Mobile Number</th>
+                                <th>Password</th>
+                                <th> City </th>
+                                <th>State</th>
+                                <th>ZipCode</th>
+                                <th>Address</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

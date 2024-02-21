@@ -1,0 +1,215 @@
+﻿@using CaptchaMvc.HtmlHelpers
+@using CaptchaMvc;
+@{
+    ViewBag.Title = "Registration";
+    Layout = "~/Views/Shared/_homeLayout.cshtml";
+}
+<style>
+
+    .field-icon {
+        float: right;
+        margin-top: -30px;
+        margin-right: 15px;
+        position: relative;
+        z-index: 2;
+    }
+</style>
+
+<section class="flat-row" style="padding-top:0px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="title-section">
+                    <h2 class="title">
+                        Registration
+                    </h2>
+                </div><!-- /.title-section -->
+            </div><!-- /.col-md-12 -->
+        </div><!-- /.row -->
+        <div class="row">
+            <div class="wrap-contact">
+                @{
+                    var Message = TempData["Message"] as string;
+                    if (!string.IsNullOrEmpty(Message))
+                    {
+                        <script>
+                         alert("@Html.Raw(Message)");
+                        </script>
+                    }
+                }
+                <form method="post" onsubmit="return RegistrationForm()" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <div class="form-text-wrap ">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <label>Name</label>
+                                <input type="text" placeholder="Enter User Name" class="form-control" name="regName" id="regName" />
+                                <span id="usererror"></span>
+                            </div>
+                            <div class="col-sm-6">
+                                <label>Mobile Number</label>
+                                <input type="text" placeholder="Enter Mobile Number" class="form-control" name="regMobile" maxlength="10" minlenght="10" id="regMobile" />
+                                <span id="mobileerror"></span>
+                            </div>
+                            <div class="col-sm-6">
+                                <label>Zipcode</label>
+                                <input type="text" placeholder="Enter Zip Code" maxlength="6" class="form-control" name="regZip" id="regZip" />
+                                <span id="zipcodeerror"></span>
+                            </div>
+                            <div class="col-sm-6">
+                                <label>Email</label>
+                                <input type="email" class="form-control" placeholder="Enter Email" name="regEmail" id="regEmail" />
+                                <span id="regemailerror"></span>
+                            </div>
+                            <div class="col-sm-6">
+                                <label>Password <span style="color:red;font-size:10px">(Allowed Number, !@@#$%^&*, Alphabet, Password Length is more than 8) </span></label>
+                                <input type="password" placeholder="Enter Password" class="form-control" name="regPwd" id="regPwd" />
+                                <i class="fa-solid fa-eye-slash field-icon toggle-password" id="eye" toggle="#regPwd"></i>
+                                <span id="regpwderror"></span>
+                            </div>
+                            <div class="col-sm-6">
+                                <label>Confirm Password</label>
+                                <input type="password" placeholder="Enter Confirm Password" class="form-control" name="regCpwd" id="regCpwd" />
+                                <i class="fa-solid fa-eye-slash field-icon toggle-password" id="eye" toggle="#regCpwd"></i>
+                                <span id="regcpwderror"></span>
+                            </div>
+                            <div class="col-sm-6">
+                                <label>Profile</label>
+                                <input type="file" class="form-control" name="profile" id="profile" />
+                                <span id="profileerror"></span>
+                            </div>
+
+                            @*catptcha*@
+
+                            <div class="col-sm-6" style="border-radius:100%;">
+                                @Html.MathCaptcha()
+                            </div>
+
+                            @*catptcha*@
+
+                        </div>
+                    </div>
+                    <div class="form-submit margin-top-32 ">
+                        <button class="contact-submit">Submit</button>
+                    </div>
+                </form>
+            </div><!-- /.wrap-contact -->
+        </div><!-- /.row -->
+    </div><!-- /.container -->
+</section>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<script type="text/javascript">
+
+    function RegistrationForm() {
+
+        var username = document.getElementById('regName').value;
+        var mobile = document.getElementById('regMobile').value;
+        var zipcode = document.getElementById('regZip').value;
+        var email = document.getElementById('regEmail').value;
+        var pwd = document.getElementById('regPwd').value;
+        var cpwd = document.getElementById('regCpwd').value;
+        var profile = document.getElementById('profile').value;
+
+        // regular expression
+        var regName = /^[A-Za-z. ]{3,30}$/;
+        var regMobileNumber = /^[6789][0-9]{9}$/;
+        var regPassword = /^(?=.*[0-9])(?=.*[!@@#$%^&*])[a-zA-Z0-9!@@#$%^&*]{8,16}$/;
+        var regEmail = /^[A-Za-z0-9_]{3,}@@[A-Za-z]{3,}[.]{1}[A-Za-z.]{2,6}$/
+        var regzip = /^[0-9]{6,}$/
+
+        if (regName.test(username)) {
+            document.getElementById('usererror').innerHTML = " ";
+            document.getElementById('regName').style.border = "1px solid green";
+        } else {
+            document.getElementById('usererror').innerHTML = "** Invalid User Name";
+            document.getElementById('usererror').style.fontWeight = "bold"
+            document.getElementById('usererror').style.color = "red"
+            document.getElementById('regName').style.border = "1px solid red";
+            return false;
+        }
+
+        if (regMobileNumber.test(mobile)) {
+            document.getElementById('mobileerror').innerHTML = " ";
+            document.getElementById('regMobile').style.border = "1px solid green";
+        } else {
+            document.getElementById('mobileerror').innerHTML = "** Invalid Mobile Number";
+            document.getElementById('mobileerror').style.fontWeight = "bold"
+            document.getElementById('mobileerror').style.color = "red"
+            document.getElementById('regMobile').style.border = "1px solid red";
+            return false;
+        }
+
+        if (regzip.test(zipcode)) {
+            document.getElementById('zipcodeerror').innerHTML = " ";
+            document.getElementById('regZip').style.border = "1px solid green";
+        } else {
+            document.getElementById('zipcodeerror').innerHTML = "** Invalid Zip Code";
+            document.getElementById('zipcodeerror').style.fontWeight = "bold"
+            document.getElementById('zipcodeerror').style.color = "red"
+            document.getElementById('regZip').style.border = "1px solid red";
+            return false;
+        }
+
+        if (regEmail.test(email)) {
+            document.getElementById('regemailerror').innerHTML = " ";
+            document.getElementById('regEmail').style.border = "1px solid green";
+        } else {
+            document.getElementById('regemailerror').innerHTML = "** Invalid Email";
+            document.getElementById('regemailerror').style.fontWeight = "bold"
+            document.getElementById('regemailerror').style.color = "red"
+            document.getElementById('regEmail').style.border = "1px solid red";
+            return false;
+        }
+
+        if (regPassword.test(pwd)) {
+            document.getElementById('regpwderror').innerHTML = " ";
+            document.getElementById('regPwd').style.border = "1px solid green";
+        } else {
+            document.getElementById('regpwderror').innerHTML = "** Invalid Password";
+            document.getElementById('regpwderror').style.fontWeight = "bold"
+            document.getElementById('regpwderror').style.color = "red"
+            document.getElementById('regPwd').style.border = "1px solid red";
+            return false;
+        }
+
+        if (cpwd.match(regPwd)) {
+            document.getElementById('regcpwderror').innerHTML = " ";
+            document.getElementById('regCpwd').style.border = "1px solid green";
+        } else {
+            document.getElementById('regcpwderror').innerHTML = "** Confirm Password is not Matched.";
+            document.getElementById('regcpwderror').style.fontWeight = "bold"
+            document.getElementById('regcpwderror').style.color = "red"
+            document.getElementById('regCpwd').style.border = "1px solid red";
+            return false;
+        }
+
+
+        if (profile) {
+            document.getElementById('profileerror').innerHTML = " ";
+            document.getElementById('profile').style.border = "1px solid green";
+        } else {
+            document.getElementById('profileerror').innerHTML = "** Please Select Profile";
+            document.getElementById('profileerror').style.fontWeight = "bold"
+            document.getElementById('profileerror').style.color = "red"
+            document.getElementById('profile').style.border = "1px solid red";
+            return false;
+        }
+
+    }
+
+</script>
+
+<script>
+    $(".toggle-password").click(function () {
+
+        $(this).toggleClass("fa-eye fa-eye-slash");
+        var input = $($(this).attr("toggle"));
+        if (input.attr("type") == "password") {
+            input.attr("type", "text");
+        } else {
+            input.attr("type", "password");
+        }
+    });
+</script>
+

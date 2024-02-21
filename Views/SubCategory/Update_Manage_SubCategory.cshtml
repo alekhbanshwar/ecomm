@@ -1,0 +1,88 @@
+﻿@using System.Data
+@using System.Data.SqlClient
+@using System.Configuration
+@{
+    ViewBag.Title = "Update_Manage_SubCategory";
+    Layout = "~/Views/Shared/adminLayout.cshtml";
+
+    SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["myCon"] + "");
+}
+
+@{
+    // Access the DataTable from ViewBag
+    DataTable SubCatData = ViewBag.SubCatData;
+}
+
+<div class="card">
+    <div class="card-body p-4">
+        <h5 class="card-title">Manage SubCategory</h5>
+        @{
+            var Message = TempData["Message"] as string;
+            if (!string.IsNullOrEmpty(Message))
+            {
+                <script>
+                         alert("@Html.Raw(Message)");
+                </script>
+            }
+        }
+        <hr />
+        <div class="form-body mt-4">
+            <div class="row">
+                <div class="col-lg-12">
+                    <form method="post" action="~/SubCategory/Update_Manage_SubCategory">
+                        @Html.AntiForgeryToken()
+                        @{
+                            foreach (DataRow row in SubCatData.Rows)
+                            {<input type="hidden" value="@row["subCatId"]" name="subcatid" />
+                                <div class="border border-3 p-4 rounded">
+                                    <div class="mb-3">
+                                        <label for="inputProductTitle" class="form-label">Category </label>
+                                        <select name="catid" class="form-control">
+                                            <option value="@row["catId"]" selected>@row["catName"]</option>
+                                            <option value="" style="background-color:lightgray">Select Category</option>
+                                            @{
+
+
+
+                                                if (con.State == ConnectionState.Closed)
+                                                {
+                                                    con.Open();
+                                                }
+                                                string query = "SELECT * FROM tblCategory where isDel='false'";
+                                                SqlDataAdapter sda = new SqlDataAdapter(query, con);
+                                                DataTable dt = new DataTable();
+
+                                                sda.Fill(dt);
+                                                con.Close();
+
+                                                foreach (DataRow dr in dt.Rows)
+                                                {
+
+                                                    <option value="@dr["catId"]">
+                                                        @dr["catName"]
+                                                    </option>
+
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="inputProductTitle" class="form-label">SubCategory </label>
+                                        <input type="text" class="form-control" id="inputProductTitle" placeholder="Enter Category Title" name="subcategory" value="@row["subCatName"]">
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="d-grid">
+                                            <button type="submit" class="btn btn-primary">Save Category</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </form>
+                </div>
+
+            </div><!--end row-->
+        </div>
+    </div>
+</div>
+

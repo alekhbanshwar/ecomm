@@ -1,0 +1,125 @@
+﻿@using System.Data
+@using System.Data.SqlClient
+@{
+    ViewBag.Title = "Search";
+    Layout = "~/Views/Shared/_homeLayout.cshtml";
+}
+@{
+    var Message = TempData["Message"] as string;
+    if (!string.IsNullOrEmpty(Message))
+    {
+        <script>
+                         alert("@Html.Raw(Message)");
+        </script>
+    }
+    DataTable data = ViewData["data"] as DataTable;
+}
+
+<style>
+    .field-icon-right {
+        float: right;
+        margin-top: -47px;
+        margin-right: 5px;
+        position: relative;
+        z-index: 2;
+    }
+</style>
+<section class="flat-row main-shop shop-4col">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="filter-shop bottom_68 clearfix">
+                    @{
+                        if (data.Rows.Count > 0)
+                        {
+                            <p class="showing-product">
+                                Showing  @data.Rows.Count Products
+                            </p>
+                        }
+                    }
+
+                    <ul class="flat-filter-search">
+                        <li class="search-product"><a href="#">Search</a></li>
+                    </ul>
+                </div><!-- /.filte-shop -->
+                <div class="box-filter slidebar-shop clearfix">
+                    <div class="btn-close"><a href="#"><i class="fa fa-times"></i></a></div>
+                 <!-- /.widget -->
+                   <!-- /.widget -->
+                </div><!-- /.box-filter -->
+                <div class="shop-search clearfix">
+                    <form class="search-form" action="" id="baseUrl" data-url="@Url.Action("Search", "Home")" >
+                        <label>
+                            <input type="search" class="search-field" placeholder="Searching …" value="" id="search_str">
+                        </label>
+                        <button type="button" class="search-submit field-icon-right" value="Search" onclick="funSearch()">Submit</button>
+                    </form>
+                </div><!-- /.top-serach -->
+                <div class="product-content product-fourcolumn clearfix">
+                    <ul class="product style3">
+                        @{
+                            if (data.Rows.Count > 0)
+                            {
+                                foreach (DataRow dr in data.Rows)
+                                {
+                                    <li class="product-item">
+                                        <div class="product-thumb clearfix">
+                                            <a href="~/Home/Product_Details?proid=@dr["proId"].ToString()">
+                                                <img src="~/Upload/Product/ProductAttrImages/@dr["proAttrImage"]" alt="image" style="height:300px;">
+                                            </a>
+                                        </div>
+                                        <div class="product-info clearfix">
+                                            <br>
+                                            <span class="product-title ">@dr["proName"]</span>
+                                            <div class="price">
+                                                <del>
+                                                    <span class="regular">&#x20B9;@dr["proPrice"]</span>
+                                                </del>&nbsp;
+                                                <ins>
+                                                    <span class="amount">&#x20B9;@dr["proDisPrice"]</span>
+                                                </ins>
+                                            </div>
+                                            <ul class="flat-color-list">
+                                                <li>
+                                                    <a href="~/Home/Product_Details?proid=@dr["proId"].ToString()" style="width:100px;">@dr["subCatName"]</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="add-to-cart text-center">
+                                            <a href="~/Home/Product_Details?proid=@dr["proId"].ToString()">View Product</a>
+                                        </div>
+                                        <a href="#" class="like"><i class="fa fa-heart-o"></i></a>
+                                    </li>
+                                }
+                            }
+                            else
+                            {
+                                <li>
+                                    <div class="alert alert-danger" >Data Not Found</div>
+                                </li>
+                            }
+                        }
+
+                    </ul><!-- /.product -->
+                </div><!-- /.product-content -->
+                <div class="product-pagination text-center margin-top-11 clearfix">
+                    <ul class="flat-pagination">
+                        <li class="prev">
+                            <a href="#"><i class="fa fa-angle-left"></i></a>
+                        </li>
+                        <li><a href="#">1</a></li>
+                        <li class="active"><a href="#" title="">2</a></li>
+                        <li><a href="#">3</a></li>
+                        <li><a href="#"><i class="fa fa-angle-right"></i></a></li>
+                    </ul><!-- /.flat-pagination -->
+                </div>
+            </div><!-- /.col-md-12 -->
+        </div><!-- /.row -->
+    </div><!-- /.container -->
+</section><!-- /.flat-row -->
+<form id="categoryFilter">
+    <input type="hidden" id="sort" name="sort" value="" />
+    <input type="hidden" id="filter_price_start" name="filter_price_start" value="{{$filter_price_start}}" />
+    <input type="hidden" id="filter_price_end" name="filter_price_end" value="{{$filter_price_end}}" />
+    <input type="hidden" id="color_filter" name="color_filter" value="{{$color_filter}}" />
+</form>

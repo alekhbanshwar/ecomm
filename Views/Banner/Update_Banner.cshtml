@@ -1,0 +1,91 @@
+﻿@using System.Data
+@using System.Data.SqlClient
+@using System.Configuration
+@{
+    ViewBag.Title = "Update Banner";
+    Layout = "~/Views/Shared/adminLayout.cshtml";
+}
+
+
+<div class="card">
+    <div class="card-body">
+        <div class="d-lg-flex align-items-center mb-4 gap-3">
+            <div class="position-relative">
+                <a href="~/Admin/Color" class="btn btn-primary  mt-2 mt-lg-0">@ViewBag.Title</a>
+            </div>
+
+        </div>
+        <hr />
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success border-0 bg-success alert-dismissible fade show py-2">
+                <div class="d-flex align-items-center">
+                    <div class="font-35 text-white">
+                        <i class='bx bxs-check-circle'></i>
+                    </div>
+                    <div class="ms-3">
+                        <h6 class="mb-0 text-white">Success</h6>
+                        <div class="text-white">@TempData["SuccessMessage"]</div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-success border-0 bg-success alert-dismissible fade show py-2">
+                <div class="d-flex align-items-center">
+                    <div class="font-35 text-white">
+                        <i class='bx bxs-check-circle'></i>
+                    </div>
+                    <div class="ms-3">
+                        <h6 class="mb-0 text-white">Danger</h6>
+                        <div class="text-white">@TempData["ErrorMessage"]</div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <form action="~/Banner/Update_Banner" method="post" enctype="multipart/form-data">
+            @{
+                foreach (DataRow row in Model.Rows)
+                {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" class="form-control" name="id" value="@row["bannerId"]">
+                    <div class="mb-3">
+                        <label class="form-label">Banner Title</label>
+                        <input type="text" class="form-control" name="bannerTitle" value="@row["bannerTitle"]">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Banner Small Title</label>
+                        <input type="text" class="form-control" name="bannerSmallTitle" value="@row["bannerSmallTitle"]">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">URL</label>
+                        <input type="text" class="form-control" name="url" value="@row["url"]">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descr</label>
+                        <input type="text" class="form-control" name="descr" value="@row["descr"]">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Banner Image</label>
+                        <input type="file" class="form-control" name="bannerImage">
+                        <input type="hidden" class="form-control" name="previousImagePath" value="~/Upload/Banner/@row["bannerImage"].ToString()">
+                        <img src="~/Upload/Banner/@row["bannerImage"].ToString()" style="height:60px;" />
+                    </div>
+                }
+            }
+            <div class="col-12">
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">
+                        Save Banner
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+

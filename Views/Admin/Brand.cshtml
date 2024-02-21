@@ -1,0 +1,109 @@
+﻿@using System.Data
+@using System.Data.SqlClient
+@using System.Configuration
+@{
+    ViewBag.Title = "Brand";
+    Layout = "~/Views/Shared/adminLayout.cshtml";
+
+    SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["myCon"] + "");
+}
+
+
+
+<div class="card">
+    <div class="card-body">
+        <div class="d-lg-flex align-items-center mb-4 gap-3">
+            <div class="position-relative">
+                <a href="~/Admin/Color" class="btn btn-primary  mt-2 mt-lg-0">@ViewBag.Title</a>
+            </div>
+
+        </div>
+        <hr />
+        @{
+            var Message = TempData["Message"] as string;
+            if (!string.IsNullOrEmpty(Message))
+            {
+                <script>
+                         alert("@Html.Raw(Message)");
+                </script>
+            }
+        }
+        <form action="~/Admin/Brand" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+            <div class="mb-3">
+                <label for="inputProductTitle" class="form-label">Brand Name</label>
+                <input type="text" class="form-control" id="inputProductTitle" placeholder="Enter Color Name" name="bname">
+            </div>
+            <div class="mb-3">
+                <label for="inputProductTitle" class="form-label">Brand Image</label>
+                <input type="file" class="form-control" name="file">
+            </div>
+            <div class="col-12">
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">
+                        Save Brand
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Brand</h5>
+        <hr />
+        <div class="table-responsive">
+            <table id="example" class="table table-striped table-bordered" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th> Name</th>
+                        <th> Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        if (con.State == ConnectionState.Closed)
+                        {
+                            con.Open();
+                        }
+                        int count = 0;
+
+                        SqlCommand cmd = new SqlCommand("sp_Brand", con);
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@isDel", "false");
+                        cmd.Parameters.AddWithValue("@Action", "S");
+                        SqlDataReader sdr = cmd.ExecuteReader();
+                        DataTable dt = new DataTable();
+
+                        dt.Load(sdr);
+                        con.Close();
+
+                        foreach (DataRow dr in dt.Rows)
+                        {
+                            int i = count + 1;
+
+                            <tr>
+                                <td>@i</td>
+                                <td>@dr["brName"].ToString() <img src="~/Upload/Brand/@dr["brImage"].ToString()" style="height:60px;" /></td>
+                                <td>
+                                    <div class="d-flex order-actions">
+                                        <a href="~/Admin/DeleteBrand?id=@dr["brId"]&&imageUrl=~/Upload/Brand/@dr["brImage"].ToString()" class="ms-3" style="border:1px solid " onclick="return confirm('Are You Sure Want To Delete This Brand?')"><i class="bx bxs-trash"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                            count++;
+                        }
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th>Id</th>
+                        <th>Name</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>

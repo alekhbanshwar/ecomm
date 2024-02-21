@@ -1,0 +1,100 @@
+﻿@using System.Data
+@using System.Data.SqlClient
+@using System.Configuration
+@{
+    ViewBag.Title = "Product";
+    Layout = "~/Views/Shared/adminLayout.cshtml";
+
+    SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["myCon"] + "");
+}
+<style>
+    .fixed-width {
+        max-width: 300px; /* Adjust the max-width to your desired value */
+    }
+</style>
+<div class="card">
+    <div class="card-body">
+        <div class="d-lg-flex align-items-center mb-4 gap-3">
+            <div class="position-relative">
+                <a href="javascript:;" class="btn btn-primary mt-2 mt-lg-0">Product</a>
+            </div>
+            <div class="ms-auto"><a href="~/Product/Manage_Product" class="btn btn-primary mt-2 mt-lg-0"><i class="bx bxs-plus-square"></i>Manage Product</a></div>
+        </div>
+        @{
+            var Message = TempData["Message"] as string;
+            if (!string.IsNullOrEmpty(Message))
+            {
+                <script>
+                         alert("@Html.Raw(Message)");
+                </script>
+            }
+        }
+        <hr />
+        <div class="table-responsive">
+            <table id="example" class="table table-striped table-bordered" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Product Name</th>
+                        <th>Category / SubCategory</th>
+                        <th>Product Price / Product Discount Price </th>
+                        <th>Product Attr Images</th>
+                        <th>Product Images</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        if (con.State == ConnectionState.Closed)
+                        {
+                            con.Open();
+                        }
+                        int count = 0;
+
+                        SqlCommand cmd = new SqlCommand("sp_Product", con);
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@Action", "S");
+                        SqlDataReader sdr = cmd.ExecuteReader();
+                        DataTable dt = new DataTable();
+
+                        dt.Load(sdr);
+                        con.Close();
+
+                        foreach (DataRow dr in dt.Rows)
+                        {
+                            int i = count + 1;
+
+                            <tr>
+                                <td>@i</td>
+                                <td>@dr["proName"].ToString() <img src="~/Upload/Product/@dr["proImage"].ToString()" style="height:50px;"></td>
+                                <td>@dr["catName"].ToString() / @dr["subCatName"].ToString()</td>
+                                <td>@dr["proPrice"].ToString() &#x20B9; / @dr["proDisPrice"].ToString() &#x20B9;</td>
+                                <td><a href="~/Product/Product_Attr?id=@dr["proId"].ToString()" class="btn btn-primary"><i class="bx bxs-plus-square"></i>Product Attr Images</a></td>
+                                <td><a href="~/Product/ProImages?id=@dr["proId"].ToString()" class="btn btn-primary"><i class="bx bxs-plus-square"></i>Product Images</a></td>
+                                <td>
+                                    <div class="d-flex order-actions">
+                                        <a href="~/Product/Update_Manage_Product?proid=@dr["proId"]&&cid=@dr["catId"]&&csid=@dr["subcatId"]&&bid=@dr["bId"]" style="border:1px solid "><i class="bx bxs-edit"></i></a>
+                                        <a href="~/Product/Delete_Product?id=@dr["proId"].ToString()&&imageUrl=~/Upload/Product/@dr["proImage"].ToString()" class="delete_btn_ajax ms-3" style="border:1px solid" onclick="return confirm('Are You Sure Want To Delete This Product Details?')"><i class="bx bxs-trash"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                            count++;
+                        }
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th>#</th>
+                        <th>Product Name</th>
+                        <th>Category / SubCategory</th>
+                        <th>Product Price / Product Discount Price </th>
+                        <th>Product Attr Images</th>
+                        <th>Product Images</th>
+                        <th>Action</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+

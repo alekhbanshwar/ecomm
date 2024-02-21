@@ -1,0 +1,322 @@
+﻿@using System.Data
+@using System.Data.SqlClient
+@using System.Configuration
+@using ecomm.Models
+@using System.Threading;
+@{
+    SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["myCon"] + "");
+    int pid = ViewBag.proId;
+
+
+}
+@{
+    ViewBag.Title = "Product Details";
+    Layout = "~/Views/Shared/_homeLayout.cshtml";
+}
+
+
+<!-- Page title -->
+<div class="page-title parallax parallax1">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="page-title-heading">
+                    <h1 class="title">@ViewBag.Title</h1>
+                </div><!-- /.page-title-heading -->
+                <div class="breadcrumbs">
+                    <ul>
+                        <li><a href="~/">Home</a></li>
+                        <li><a href="~/Home/@ViewBag.Title">@ViewBag.Title</a></li>
+                        <li><a href="#">@pid</a></li>
+                    </ul>
+                </div><!-- /.breadcrumbs -->
+            </div><!-- /.col-md-12 -->
+        </div><!-- /.row -->
+    </div><!-- /.container -->
+</div><!-- /.page-title -->
+
+
+@{
+    DataTable dataTable = new DataTable();
+    using (SqlCommand sqlCommand = new SqlCommand("SELECT * FROM tblProduct LEFT JOIN tblCategory ON tblProduct.catId=tblCategory.catId LEFT JOIN tblSubCategory ON tblProduct.subcatId=tblSubCategory.subCatId   WHERE tblProduct.proId=@proId and tblProduct.isDel='false'", con))
+    {
+        con.Open();
+        sqlCommand.Parameters.AddWithValue("@proId", pid);
+        using (SqlDataAdapter adapter = new SqlDataAdapter(sqlCommand))
+        {
+            adapter.Fill(dataTable);
+        }
+    }
+
+    foreach (DataRow dr in dataTable.Rows)
+    {
+
+        <!-- product details  -->
+        <form method="post" action="~/Home/AddToCart">
+            @Html.AntiForgeryToken()
+
+
+
+            <section class="flat-row main-shop shop-detail style-1">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="wrap-flexslider clearfix">
+                                <div class="flexslider style-2 ">
+                                    @{
+                                        DataTable dataTableProImage = new DataTable();
+                                        using (SqlCommand sqlCommandProImage = new SqlCommand("SELECT * FROM tblProImages WHERE tblProImages.productId=@proId ", con))
+                                        {
+
+                                            sqlCommandProImage.Parameters.AddWithValue("@proId", pid);
+                                            using (SqlDataAdapter adapterProImage = new SqlDataAdapter(sqlCommandProImage))
+                                            {
+                                                adapterProImage.Fill(dataTableProImage);
+                                            }
+                                        }
+                                        <ul class="slides">
+                                            @{
+                                                foreach (DataRow drProImage in dataTableProImage.Rows)
+                                                {
+                                                    <li data-thumb-alt="../Upload/Product/ProductImages/@drProImage["images"]" data-thumb="../Upload/Product/ProductImages/@drProImage["images"]" >
+                                                        <img src="../Upload/Product/ProductImages/@drProImage["images"]" alt="Image" style="height:600px;">
+                                                        <div class="flat-icon style-1">
+                                                            <a href="~/Upload/Product/ProductImages/@drProImage["images"]" class="zoom-popup"><span class="fa fa-search-plus"></span></a>
+                                                        </div>
+                                                    </li>
+                                                }
+
+                                            }
+                                        </ul>
+
+                                    }
+                                </div><!-- /.flexslider -->
+                            </div>
+                        </div><!-- /.col-md-6 -->
+
+                        <div class="col-md-6">
+                            <div class="divider h0"></div>
+                            <div class="product-detail">
+                                <div class="inner">
+                                    <div class="content-detail">
+                                        <h2 class="product-title">@dr["proName"]</h2>
+                                        <div class="product-categories">
+                                            <span style="font-weight:bold;color:darkred">Categories: </span><a href="#">@dr["catName"]</a>
+                                            <br />
+                                            <span style="font-weight:bold;color:darkred">SubCategories: </span><a href="#">@dr["subCatName"]</a>
+                                        </div>
+                                        <p class="mt-2" id="limitedParagraph">@dr["shortDesc"] </p>
+                                        <div class="price">
+                                            <del><span class="regular">&#x20B9;@dr["proPrice"]</span></del>
+                                            <ins><span class="amount">&#x20B9;@dr["proDisPrice"]</span></ins>
+                                        </div>
+                                        <div class="size">
+
+
+                                            @{
+
+                                                DataTable dataTablesize = new DataTable();
+                                                using (SqlCommand sqlCommandsize = new SqlCommand("SELECT DISTINCT size FROM tblProAttr WHERE tblProAttr.proId=@proId ", con))
+                                                {
+
+                                                    sqlCommandsize.Parameters.AddWithValue("@proId", pid);
+                                                    using (SqlDataAdapter adaptersize = new SqlDataAdapter(sqlCommandsize))
+                                                    {
+                                                        adaptersize.Fill(dataTablesize);
+                                                    }
+                                                }
+                                                if (dataTablesize == null)
+                                                {
+                                                    <span>Size:</span>
+                                                    <ul>
+                                                        @foreach (DataRow drsize in dataTablesize.Rows)
+                                                        {
+
+                                                            <li value="@drsize["size"].ToString()"><a href="javascript:void(0)" onclick="showColor('@drsize["size"].ToString()')" id="size_@drsize["size"].ToString()" class="size_link">@drsize["size"].ToString()</a></li>
+
+                                                        }
+                                                    </ul>
+                                                }
+
+
+
+                                            }
+
+
+
+                                        </div>
+                                        <div class="product-color">
+                                            <span>Colors:</span>
+                                            <ul class="flat-color-list">
+                                                @{
+                                                    string querycolor = "SELECT DISTINCT c.colId, c.colName, pi.size,pi.proAttrImage FROM tblProAttr pi  LEFT JOIN tblColor c ON pi.colorId = c.colId WHERE pi.proId =@proId  order by colName asc";
+                                                    DataTable dataTablecolor = new DataTable();
+                                                    using (SqlCommand sqlCommandcolor = new SqlCommand(querycolor, con))
+                                                    {
+
+                                                        sqlCommandcolor.Parameters.AddWithValue("@proId", pid);
+                                                        using (SqlDataAdapter adaptercolor = new SqlDataAdapter(sqlCommandcolor))
+                                                        {
+                                                            adaptercolor.Fill(dataTablecolor);
+                                                        }
+                                                    }
+                                                    foreach (DataRow drcolor in dataTablecolor.Rows)
+                                                    {
+                                                        <li>
+                                                            <a href="javascript:void(0)" class="product_color size_@drcolor["size"]" onclick="select_color('@drcolor["colId"]')" style="width:50px;"><img src="~/Upload/Product/ProductAttrImages/@drcolor["proAttrImage"]" sstyle="height:100px;width:50px" /> </a>
+                                                        </li>
+
+                                                    }
+                                                }
+                                            </ul>
+                                        </div>
+                                        <ul class="product-infor style-1">
+                                            <li><span>100% cotton</span></li>
+                                            <li><span>6 months warranty</span></li>
+                                            <li><span>High Quality</span></li>
+                                        </ul>
+                                        <div class="product-quantity">
+                                            <div class="quantity">
+                                                <input type="text" value="1" name="qty" class="quantity-number">
+                                                <span class="inc quantity-button">+</span>
+                                                <span class="dec quantity-button">-</span>
+                                            </div>
+                                            <div class="add-to-cart">
+                                                <button type="submit">ADD TO CART</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div><!-- /.product-detail -->
+                        </div>
+                    </div><!-- /.row -->
+                </div><!-- /.container -->
+            </section>
+            <input type="hidden" name="pid" value="@pid" />
+            <input type="hidden" name="price" value="@Convert.ToInt32(dr["proDisPrice"])" />
+            <input type="hidden" id="color_id" name="color_id" />
+            <input type="hidden" id="size_id" name="size_id" />
+        </form>
+        <!-- / product details  -->
+        <section class="flat-row shop-detail-content">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="flat-tabs style-1 has-border">
+                            <div class="inner">
+                                <ul class="menu-tab">
+                                    <li class="active">Description</li>
+                                    <li>Additional information</li>
+                                    <li>Uses</li>
+                                    <li>Reviews</li>
+
+                                </ul>
+                                <div class="content-tab">
+                                    <div class="content-inner" style="display: block;">
+                                        <div class="flat-grid-box border-width  has-padding ">
+
+
+                                            <div class="grid-row image-right clearfix">
+                                                <div class="grid-item" style="padding:20px 20px 0px 30px;">
+                                                    <p>@dr["description"]</p>
+                                                </div><!-- /.grid-item -->
+                                            </div><!-- /.grid-row -->
+                                        </div><!-- /.flat-grid-box -->
+                                    </div><!-- /.content-inner -->
+                                    <div class="content-inner" style="display: none;">
+                                        <div class="inner max-width-40">
+                                            <table>
+                                                <tbody>
+                                                    <tr>
+                                                        @dr["addInfo"]
+                                                    </tr>
+
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div><!-- /.content-inner -->
+                                    <div class="content-inner" style="display: none;">
+                                        <div class="flat-grid-box border-width  has-padding ">
+
+
+                                            <div class="grid-row image-right clearfix">
+                                                <div class="grid-item" style="padding:20px 20px 0px 30px;">
+                                                    <p>@dr["uses"]</p>
+                                                </div><!-- /.grid-item -->
+                                            </div><!-- /.grid-row -->
+                                        </div>
+                                    </div>
+                                    <div class="content-inner" style="display: none;">
+                                        <div class="inner max-width-83 padding-top-33">
+                                            <ol class="review-list">
+                                                <li class="review">
+                                                    <div class="thumb">
+                                                        <img src="images/avatar-1.png" alt="Image">
+                                                    </div>
+                                                    <div class="text-wrap">
+                                                        <div class="review-meta">
+                                                            <h5 class="name">Sophia Rosla</h5>
+                                                            <div class="flat-star style-1">
+                                                                <i class="fa fa-star"></i>
+                                                                <i class="fa fa-star"></i>
+                                                                <i class="fa fa-star"></i>
+                                                                <i class="fa fa-star"></i>
+                                                                <i class="fa fa-star-half-o"></i>
+                                                            </div>
+                                                        </div>
+                                                        <div class="review-text">
+                                                            <p>I wanted to thank you so much for the rug we have received it really is beautiful and expertly made. I will be recommending you to all our friends.</p>
+                                                        </div>
+                                                    </div>
+                                                </li><!--  /.review    -->
+
+                                            </ol><!-- /.review-list -->
+                                            <div class="comment-respond review-respond" id="respond">
+                                                <div class="comment-reply-title margin-bottom-14">
+                                                    <h5>Write a review</h5>
+                                                    <p>Your email address will not be published. Required fields are marked *</p>
+                                                </div>
+                                                <form novalidate="" class="comment-form review-form" id="commentform" method="post" action="#">
+                                                    <p class="flat-star style-2">
+                                                        <label>Rating*:</label>
+                                                        <i class="fa fa-star"></i>
+                                                        <i class="fa fa-star"></i>
+                                                        <i class="fa fa-star"></i>
+                                                        <i class="fa fa-star"></i>
+                                                        <i class="fa fa-star"></i>
+                                                    </p>
+                                                    <p class="comment-form-comment">
+                                                        <label>Review*</label>
+                                                        <textarea class="" tabindex="4" name="comment" required=""> </textarea>
+                                                    </p>
+                                                    <p class="comment-name">
+                                                        <label>Name*</label>
+                                                        <input type="text" aria-required="true" size="30" value="" name="name" id="name">
+                                                    </p>
+                                                    <p class="comment-email">
+                                                        <label>Email*</label>
+                                                        <input type="email" size="30" value="" name="email" id="email">
+                                                    </p>
+                                                    <p class="comment-form-notify clearfix">
+                                                        <input type="checkbox" name="check-notify" id="check-notify"> <label for="check-notify">Notify me of new posts by email</label>
+                                                    </p>
+                                                    <p class="form-submit">
+                                                        <button class="comment-submit">Submit</button>
+                                                    </p>
+                                                </form>
+                                            </div><!-- /.comment-respond -->
+                                        </div>
+                                    </div><!-- /.content-inner -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+    }
+}
+<script src="~/homeAssets/common.js"></script>
+

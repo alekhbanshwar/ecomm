@@ -1,0 +1,173 @@
+﻿@model OrderEntity
+@using System.Data
+@using ecomm.Models
+@{
+    ViewBag.Title = "Checkout";
+    Layout = "~/Views/Shared/_homeLayout.cshtml";
+}
+@{
+    var Message = TempData["Message"] as string;
+    if (!string.IsNullOrEmpty(Message))
+    {
+        <script>
+                         alert("@Html.Raw(Message)");
+        </script>
+    }
+    int totalPrice = 0;
+    int total = 0;
+}
+@{
+    DataTable regdata = ViewData["RegistrationData"] as DataTable;
+
+    DataRow firstRow = regdata.Rows.Count > 0 ? regdata.Rows[0] : null;
+}
+}
+<!-- Blog posts -->
+<section class="checkout style1">
+    <div class="container">
+        <form method="post" action="~/Home/PlaceOrder">
+            @Html.AntiForgeryToken()
+            <div class="row" style="margin:50px 0px 50px 0px;">
+                <div class="col-sm-8">
+                    @{
+                        if (Session["USER_LOGIN"] == null)
+                        {
+                            <a href="" class="contact-submit btn btn-danger" style="background-color:#f62440;" data-toggle="modal" data-target="#exampleModalCenter">Login</a><br /><br />
+                            <span style="font-weight:bold;color:black;margin-top:230px;">OR</span><br /><br />
+                        }
+                    }
+                    <div class="row" style="border:0.1px solid #ddd">
+                        <div class="col-12" style="border-bottom: 0.1px solid #ddd;">
+                            <h3 style="color: #F62440; font-weight: bold; padding: 20px; ">User Details Address</h3>
+                        </div>
+                        @if (firstRow != null)
+                        {
+                            <div class="col-12">
+                                <div class="wrap-contact ">
+
+
+                                    <input type="hidden" value="@firstRow["id"]" name="customersId" />
+                                    <div class="form-text-wrap clearfix margin-top-15">
+                                        <div class="contact-name clearfix">
+                                            <input type="text" class="rounded" value="@firstRow["UserName"]" name="name" placeholder="Name" required>
+                                        </div>
+                                        <div class="contact-email">
+                                            <input type="email" class="rounded" value=" @firstRow["UserEmail"]" name="email" placeholder="Email Addess" required>
+                                        </div>
+                                        <div class="contact-subject">
+                                            <input type="text" class="rounded" value=" @firstRow["MobileNumber"]" name="mobile" id="phone" placeholder="Phone" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="contact-message clearfix ">
+                                        <label></label>
+                                        <textarea class="rounded" name="address" placeholder="Address" required>  @firstRow["Address"]</textarea>
+                                    </div>
+                                    <div class="form-text-wrap clearfix margin-top-15" style="margin-bottom:15px;">
+                                        <div class="contact-name clearfix">
+                                            <input type="text" class="rounded" value="  @firstRow["City"]" name="city" placeholder="City/Town" required>
+                                        </div>
+                                        <div class="contact-email">
+                                            <input type="text" class="rounded" value="  @firstRow["State"]" name="state" placeholder="State" required>
+                                        </div>
+                                        <div class="contact-subject">
+                                            <input type="text" class="rounded" value="  @firstRow["ZipCode"]" name="pincode" placeholder="Postcode/ZipCode" required>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="col-12">
+                                <div class="wrap-contact ">
+
+
+                                    <input type="text" value="@Session["USER_TEMP_ID"]" name="customersId" />
+                                    <div class="form-text-wrap clearfix margin-top-15">
+                                        <div class="contact-name clearfix">
+                                            <input type="text" class="rounded" value="" name="name" placeholder="Name" required>
+                                        </div>
+                                        <div class="contact-email">
+                                            <input type="email" class="rounded" value="" name="email" placeholder="Email Addess" required>
+                                        </div>
+                                        <div class="contact-subject">
+                                            <input type="text" class="rounded" value="" name="mobile" id="phone" placeholder="Phone" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="contact-message clearfix ">
+                                        <label></label>
+                                        <textarea class="rounded" name="address" placeholder="Address" required> </textarea>
+                                    </div>
+                                    <div class="form-text-wrap clearfix margin-top-15" style="margin-bottom:15px;">
+                                        <div class="contact-name clearfix">
+                                            <input type="text" class="rounded" value="" name="city" placeholder="City/Town" required>
+                                        </div>
+                                        <div class="contact-email">
+                                            <input type="text" class="rounded" value="" name="state" placeholder="State" required>
+                                        </div>
+                                        <div class="contact-subject">
+                                            <input type="text" class="rounded" value="" name="pincode" placeholder="Postcode/ZipCode" required>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <h4 style="color: #F62440; font-weight: bold;">Order Summery</h4>
+                    <br />
+                    <table class="table  table-bordered" style="width:100%;">
+                        <thead>
+                            <tr>
+                                <th scope="col" style="color:black;font-weight:bold;">Product</th>
+                                <th scope="col" style="color:black;font-weight:bold;">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in (List<tblCart>)ViewBag.CartItems)
+                            {
+
+                                int price = Convert.ToInt32(item.price);
+                                int qty = Convert.ToInt32(item.qty);
+                                totalPrice = price * qty;
+                                total = total + (totalPrice);
+                                <tr>
+                                    <td>@item.proName<br> <span style="color:#F62440"> Color:</span>@item.colName<br /><span style="color:#F62440">Size:</span>  @item.size </td>
+                                    <td>Rs. @totalPrice</td>
+                                </tr>
+
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th style="color:black;font-weight:bold;">Total</th>
+                                <td id="total_price">INR @total</td>
+
+                        </tfoot>
+                    </table>
+                    <input type="hidden" value="@total" name="totalAmt" />
+                    <br />
+                    <h4 style="color: #F62440; font-weight: bold;">Payment Method</h4>
+                    <br />
+                    <div class="aa-payment-method" style="border:0.1px solid #ddd;padding:15px;">
+                        <label for="cod">
+                            <input type="radio" id="cod" name="paymentType" value="COD" checked> Cash on Delivery
+                        </label>
+                        <br />
+                        <label for="instamojo">
+                            <input type="radio" id="instamojo" name="paymentType" value="Gateway"> Via RozeyPay
+                        </label>
+                        <br />
+                        <button type="submit" class="contact-submit col-sm-12 rounded">Place Order</button>
+                    </div>
+
+                </div>
+            </div><!-- /.row -->
+        </form>
+    </div><!-- /.container -->
+</section><!-- /.blog posts -->

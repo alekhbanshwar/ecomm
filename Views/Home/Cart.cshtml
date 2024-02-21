@@ -1,0 +1,169 @@
+﻿@using System.Data
+@using System.Data.SqlClient
+@using System.Configuration
+@using ecomm.Models
+@{
+    SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["myCon"] + "");
+    common GetCommon = new common();
+}
+@{
+    ViewBag.Title = "Cart";
+    Layout = "~/Views/Shared/_homeLayout.cshtml";
+
+    int totalPrice = 0;
+    int total = 0;
+}
+<style>
+    th {
+        font-weight: bold;
+    }
+
+    .field-icon-left {
+        float: left;
+        margin-top: -47px;
+        margin-right: 5px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .field-icon-right {
+        float: right;
+        margin-top: -47px;
+        margin-right: 5px;
+        position: relative;
+        z-index: 2;
+    }
+
+    #btn {
+        background-color: white;
+        color: #D9534F;
+    }
+
+        #btn:hover {
+            background-color: white;
+        }
+</style>
+<!-- Page title -->
+<div class="page-title parallax parallax1">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="page-title-heading">
+                    <h1 class="title">@ViewBag.Title</h1>
+                </div><!-- /.page-title-heading -->
+                <div class="breadcrumbs">
+                    <ul>
+                        <li><a href="~/">Home</a></li>
+                        <li><a href="~/Home/Cart">Carts</a></li>
+                    </ul>
+                </div><!-- /.breadcrumbs -->
+            </div><!-- /.col-md-12 -->
+        </div><!-- /.row -->
+    </div><!-- /.container -->
+</div><!-- /.page-title -->
+
+
+<section class="flat-row main-shop">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                @{
+                    var Message = TempData["Message"] as string;
+                    if (!string.IsNullOrEmpty(Message))
+                    {
+                        <script>
+                         alert("@Html.Raw(Message)");
+                        </script>
+                    }
+                }
+                <table class="table table-striped table-bordered" style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th scope="col"></th>
+                            <th scope="col"></th>
+                            <th scope="col">Product</th>
+                            <th scope="col">Price</th>
+                            <th scope="col">Quantity</th>
+                            <th scope="col">Total</th>
+                            <th scope="col">Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+
+                            //int total = 0;
+                            //SELECT USERID AND USER TYPE
+
+                            int count = 0;
+                            var CartItems = GetCommon.GetAddToCartTotalItem();
+                            if (CartItems != null && CartItems.Count > 0)
+                            {
+                                foreach (var dr in (List<tblCart>)CartItems)
+                                {
+                                    int i = count + 1;
+                                    totalPrice = Convert.ToInt32(dr.qty) * Convert.ToInt32(dr.price);
+                                    total = total + (totalPrice);
+                                    <tr>
+                                        <td>@i</td>
+                                        <td><img src="~/Upload/Product/ProductAttrImages/@dr.proAttrImage" style="height:50px;" /></td>
+                                        <td>
+                                            <span style="color: red; font-weight: bold;">@dr.proName</span><br>
+                                            <span style="color:red;">Size:</span> @dr.size <br />
+                                            <span style="color:red;"> Color:</span>@dr.colName
+                                        </td>
+                                        <td>&#x20B9; @Convert.ToInt32(dr.price)</td>
+                                        <td style="width:200px;">
+
+                                            <input type="text" value="@Convert.ToInt32(dr.qty)" style="text-align:center;width:200px;">
+
+                                            <form action="~/Home/DecrementQuantity" method="post" style="float:left;" class="field-icon-left">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="qty" value="@Convert.ToInt32(dr.qty)" />
+                                                <input type="hidden" name="itemId" value="@dr.id" />
+                                                <button type="submit" id="btn"><i class="fa-solid fa-minus"></i></button>
+                                            </form>
+
+                                            <form action="~/Home/IncrementQuantity" method="post" style="float:right;" class="field-icon-right">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="qty" value="@Convert.ToInt32(dr.qty)" />
+                                                <input type="hidden" name="itemId" value="@dr.id" />
+                                                <button type="submit" id="btn"><i class="fa-solid fa-plus"></i></button>
+                                            </form>
+                                        </td>
+                                        <td>&#x20B9; @totalPrice</td>
+                                        <td>
+                                            <a href="~/Home/DeleteCart?cid=@dr.id" class="btn btn-danger" onclick="return confirm('Are You Sure Want To Delete?')">Delete</a>
+                                        </td>
+                                    </tr>
+                                    count++;
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="7" style="text-align:center;">No Items in Shopping Cart</td>
+                                </tr>
+                            }
+
+
+                        }
+
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th style="color:black;font-weight:bold;text-align:center;"colspan="5">Total</th>
+                            <td id="total_price"  colspan="2">INR @total</td>
+
+                    </tfoot>
+                </table>
+                <center>
+                    <a href="~/Home/Checkout" class="btn btn-danger">Checkout</a>
+                </center>
+            </div>
+
+        </div><!-- /.row -->
+    </div><!-- /.container -->
+</section><!-- /.flat-row -->
+<form>
+    <input type="text" value="" id="qty" />
+</form>

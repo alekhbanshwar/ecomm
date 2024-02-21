@@ -1,0 +1,304 @@
+﻿@using System.Data
+@using System.Data.SqlClient
+@using System.Configuration
+@model ecomm.Models.CategorySubCategoryModel
+@using ecomm.Models
+@{
+    SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["myCon"] + "");
+
+    common GetCommon = new common();
+}
+@{
+    Layout = null;
+}
+<style>
+
+    .field-icon {
+        float: right;
+        margin-top: -30px;
+        margin-right: 15px;
+        position: relative;
+        z-index: 2;
+    }
+</style>
+<header id="header" class="header header-container clearfix">
+    <div class="container clearfix" id="site-header-inner">
+        <div id="logo" class="logo float-left">
+            <a href="~/" title="logo">
+                <img src="~/homeAssets/images/logo@2x.png" alt="image" width="107" height="24">
+            </a>
+        </div><!-- /.logo -->
+        <div class="mobile-button"><span></span></div>
+        <ul class="menu-extra">
+            <li class="box-cart nav-top-cart-wrapper">
+                @{
+
+
+                    int count = 0;
+                    var CartItems = GetCommon.GetAddToCartTotalItem();
+                    if (CartItems.Count > 0)
+                    {
+                        <a class="icon_cart nav-cart-trigger active" href="#"><span>@CartItems.Count</span></a>
+                    }
+                    else
+                    {
+                        <a class="icon_cart nav-cart-trigger active" href="#"><span>0</span></a>
+                    }
+
+                    <div class="nav-shop-cart" style="width:400px">
+                        <div class="widget_shopping_cart_content">
+                            <div class="woocommerce-min-cart-wrap">
+                                <ul class="woocommerce-mini-cart cart_list product_list_widget ">
+                                    @{
+                                        if (CartItems != null && CartItems.Count > 0)
+                                        {
+                                            foreach (var dr in (List<tblCart>)CartItems)
+                                            {
+                                                int i = count + 1;
+                                                <li class="woocommerce-mini-cart-item mini_cart_item">
+                                                    <div class="row">
+                                                        <div class="col-4">  <img src="~/Upload/Product/ProductAttrImages/@dr.proAttrImage" style="height:50px;" /><span style="color: red; font-weight: bold;">@dr.proName.ToString()</span></div>
+                                                        <div class="col-4">
+
+                                                            <span style="color:red;">Size:</span>@dr.size.ToString()<br />
+                                                            <span style="color:red;">Color:</span>@dr.colName.ToString()<br />
+                                                        </div><div class="col-4">
+                                                            <span style="color:red;">Price:</span>&#x20B9;@dr.price<br />
+                                                            <span style="color:red;">Quantity:</span>@dr.qty
+                                                        </div>
+                                                    </div>
+                                                    <hr />
+                                                </li>
+
+                                                count++;
+
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <li class="woocommerce-mini-cart-item mini_cart_item">
+                                                <span style="color:black;">No Items in Shopping Cart</span>
+                                            </li>
+                                        }
+                                    }
+                                </ul>
+                                <div class="add-to-cart" style="margin-top:0px">
+                                    <button onclick="window.location.href='../Home/Cart'">CART</button>
+                                </div>
+                            </div><!-- /.widget_shopping_cart_content -->
+                        </div>
+                    </div><!-- /.nav-shop-cart -->
+                }
+
+
+            </li>
+            <li class="box-login nav-top-cart-wrapper">
+
+                <a href="#">
+                    <i class="fa-solid fa-gear"></i>
+                    @if (Session["USER_LOGIN"] == null)
+                    {
+
+                    }
+                    else
+                    {
+                        <span style="width: 100px;color:black;left:20px; background-color:white;"> @Session["USER_EMAIL"]</span>
+                    }
+                </a>
+                <div class="nav-shop-cart">
+                    <div class="widget_shopping_cart_content">
+                        <div class="woocommerce-min-cart-wrap">
+
+                            <ul>
+                                <li>
+                                    @{
+                                        if (Session["USER_LOGIN"] == null)
+                                        {
+                                            <a href="#" data-toggle="modal" data-target="#exampleModalCenter" style="border-radius: 0%; background: none; cursor: pointer; width: 200px; text-align: left;"><i class="fa-solid fa-right-to-bracket"></i>&nbsp;Login</a>
+                                        }
+                                        else
+                                        {
+                                            <a onclick="window.location.href='../Home/Logout'" style="border-radius: 0%; background: none; cursor: pointer; width: 200px; text-align: left;"><i class="fa-solid fa-right-to-bracket"></i>&nbsp;Logout (@Session["USER_EMAIL"])</a>
+                                        }
+                                    }
+
+                                </li>
+                                @{
+                                    if (Session["USER_LOGIN"] == null)
+                                    {
+
+
+                                        <li>
+                                            <a onclick="window.location.href='../Home/Registration'" style="border-radius: 0%; background: none; cursor: pointer; width: 200px; text-align: left;"><i class="fa-solid fa-registered"></i>&nbsp;Registration</a>
+                                        </li>
+                                    }
+                                    else
+                                    {
+                                        <li>
+                                            <a onclick="window.location.href='../Home/Order'" style="border-radius: 0%; background: none; cursor: pointer; width: 200px; text-align: left;"><i class="fa-brands fa-jedi-order"></i>&nbsp;Orders</a>
+                                        </li>
+                                    }
+                                }
+                                <li>
+                                    <a onclick="window.location.href='../Home/Cart'" style="border-radius: 0%; background: none; cursor: pointer; width: 200px; text-align: left;"><i class="fa-solid fa-cart-shopping"></i>&nbsp;Cart</a>
+                                </li>
+                                <li>
+                                    <a onclick="window.location.href='../Home/Products'" style="border-radius: 0%; background: none; cursor: pointer; width: 200px; text-align: left;"><i class="fa-brands fa-product-hunt"></i>&nbsp;Products</a>
+                                </li>
+
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </li>
+
+        </ul><!-- /.menu-extra -->
+        <div class="nav-wrap">
+            <nav id="mainnav" class="mainnav">
+                <ul class="menu">
+                    <li class="active">
+                        <a href="~/">HOME</a>
+                    </li>
+                    <li>
+                        <a href="#">Categories</a>
+                        <ul class="submenu">
+                            @{string querycatnav = "SELECT * FROM tblCategory where isDel='false' order by catName";
+                                SqlDataAdapter sdacatnav = new SqlDataAdapter(querycatnav, con);
+                                DataTable dtcatnav = new DataTable();
+
+                                sdacatnav.Fill(dtcatnav);
+                                foreach (DataRow drcat in dtcatnav.Rows)
+                                {
+                                    <li>
+                                        <a href="#" data-filter=".@drcat["catId"]">
+                                            @drcat["catName"]
+                                        </a>
+
+                                        <ul class="submenu">
+                                            @{
+                                                string querysubcat = "SELECT * FROM tblSubCategory where isDel='false' and catId='" + drcat["catId"] + "' order by subCatName";
+                                                SqlDataAdapter sdasubcat = new SqlDataAdapter(querysubcat, con);
+                                                DataTable dtsubcat = new DataTable();
+
+                                                sdasubcat.Fill(dtsubcat);
+                                                foreach (DataRow drsubcat in dtsubcat.Rows)
+                                                {
+                                                    <li>
+                                                        <a href="~/Home/products?sub_cat_name=@drsubcat["subCatId"]">@drsubcat["subCatName"]</a>
+                                                    </li>
+                                                }
+                                            }
+
+                                        </ul>
+
+                                    </li>
+                                }
+                            }
+
+
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="~/AdminLogin">Admin Login</a>
+                    </li>
+                </ul>
+            </nav><!-- /.mainnav -->
+        </div><!-- /.nav-wrap -->
+    </div><!-- /.container-fluid -->
+</header>
+<!-- Modal -->
+<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle" style="font-weight:bold;">Login or Register</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form class="contact-form" id="contactform" method="post" action="~/Home/Login" onsubmit="return LoginForm()">
+                    @Html.AntiForgeryToken()
+                    <div class="form-text-wrap clearfix">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <label>UserEmail</label>
+                                <input type="email" class="form-control" placeholder="Enter Email" name="UserEmail" id="email" />
+                                <span id="emailerror"></span>
+                            </div>
+                            <div class="col-sm-12">
+                                <label>User Password</label>
+                                <input type="password" placeholder="Enter Password" class="form-control" name="Password" id="pwd" />
+                                <i class="fa-solid fa-eye-slash field-icon toggle-password" id="eye" toggle="#pwd"></i>
+                                <span id="pwderror"></span>
+                            </div>
+                        </div>
+
+                    </div>
+                    @ViewBag.msg
+                    <div class="form-submit margin-top-15 ">
+                        <button class="contact-submit rounded">Login</button><br />
+                        <input type="checkbox" class="margin-top-15">&nbsp;Remember me
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <span style="float:left;" class="mr-auto">Don't have an account? <a href="~/Home/Registration" style="color:#F62440;">Register now!</a> </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<script type="text/javascript">
+
+    function LoginForm() {
+
+        var email = document.getElementById('email').value;
+        var pwd = document.getElementById('pwd').value;
+
+        // regular expression
+        var regPassword = /^(?=.*[0-9])(?=.*[!@@#$%^&*])[a-zA-Z0-9!@@#$%^&*]{8,16}$/;
+        var regEmail = /^[A-Za-z0-9_]{3,}@@[A-Za-z]{3,}[.]{1}[A-Za-z.]{2,6}$/;
+
+        if (regEmail.test(email)) {
+            document.getElementById('emailerror').innerHTML = " ";
+            document.getElementById('email').style.border = "1px solid green";
+        } else {
+            document.getElementById('emailerror').innerHTML = "** Invalid Email";
+            document.getElementById('emailerror').style.fontWeight = "bold"
+            document.getElementById('emailerror').style.color = "red"
+            document.getElementById('email').style.border = "1px solid red";
+            return false;
+        }
+
+        if (regPassword.test(pwd)) {
+            document.getElementById('pwderror').innerHTML = " ";
+            document.getElementById('pwd').style.border = "1px solid green";
+        } else {
+            document.getElementById('pwderror').innerHTML = "** Invalid Password";
+            document.getElementById('pwderror').style.fontWeight = "bold"
+            document.getElementById('pwderror').style.color = "red"
+            document.getElementById('pwd').style.border = "1px solid red";
+            return false;
+        }
+
+
+    }
+
+</script>
+
+<script>
+    $(".toggle-password").click(function () {
+
+        $(this).toggleClass("fa-eye fa-eye-slash");
+        var input = $($(this).attr("toggle"));
+        if (input.attr("type") == "password") {
+            input.attr("type", "text");
+        } else {
+            input.attr("type", "password");
+        }
+    });
+</script>

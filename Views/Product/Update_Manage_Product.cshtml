@@ -1,0 +1,273 @@
+﻿@using System.Data
+@using System.Data.SqlClient
+@using System.Configuration
+@model ecomm.Models.CategorySubCategoryModel
+@{
+    SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["myCon"] + "");
+}
+@{
+    ViewBag.Title = "Update Manage Product";
+    Layout = "~/Views/Shared/adminLayout.cshtml";
+}
+
+<div class="card">
+    <div class="card-body p-4">
+        <div class="d-lg-flex align-items-center  gap-3">
+            <div class="position-relative">
+                <a href="~/Product/Update_Manage_Product" class="btn btn-primary mt-2 mt-lg-0">@ViewBag.Title</a>
+            </div>
+
+        </div>
+        @{
+            var Message = TempData["Message"] as string;
+            if (!string.IsNullOrEmpty(Message))
+            {
+                <script>
+                         alert("@Html.Raw(Message)");
+                </script>
+            }
+        }
+
+        <hr />
+        <form action="~/Product/Update_Manage_Product" method="post" enctype="multipart/form-data">
+            <div class="form-body mt-4">
+                <div class="row">
+
+                    @Html.AntiForgeryToken()
+                    @{
+                        int proid = ViewBag.proid;
+                        int cid = ViewBag.cid;
+                        int csid = ViewBag.csid;
+                        int bid = ViewBag.bid;
+                        DataTable dataTable = new DataTable();
+                        using (SqlCommand sqlCommand = new SqlCommand("SELECT * FROM tblProduct LEFT JOIN tblCategory ON tblProduct.catId=tblCategory.catId LEFT JOIN tblSubCategory ON tblProduct.subcatId=tblSubCategory.subCatId LEFT JOIN tblbrand ON tblProduct.bId=tblbrand.brId WHERE tblProduct.proId=@proId and tblCategory.catId=@catId and tblSubCategory.subCatId=@subcatId ", con))
+                        {
+                            con.Open();
+                            sqlCommand.Parameters.AddWithValue("@proId", proid);
+                            sqlCommand.Parameters.AddWithValue("@catId", cid);
+                            sqlCommand.Parameters.AddWithValue("@subcatId", csid);
+                            sqlCommand.Parameters.AddWithValue("@bId", bid);
+                            using (SqlDataAdapter adapter = new SqlDataAdapter(sqlCommand))
+                            {
+                                adapter.Fill(dataTable);
+                            }
+                        }
+
+                        foreach (DataRow dr in dataTable.Rows)
+                        {
+
+                            <div class="col-6">
+                                <input type="hidden" value="@proid" class="form-control" id="proid" name="proid" />
+                                <label for="inputProductTitle" class="form-label">Product Title</label>
+                                <input type="text" class="form-control" id="inputProductTitle" placeholder="Enter product title" name="pname" value="@dr["proName"].ToString()">
+                            </div>
+                            <div class="col-6">
+                                <label for="inputProductDescription" class="form-label">Product </label>
+                                <input type="file" accept=".xlsx,.xls,image/*,.doc,audio/*,.docx,video/*,.ppt,.pptx,.txt,.pdf" class="form-control" name="pimage">
+                                <input type="hidden" name="imageUrl" value="/Upload/Product/@dr["proImage"].ToString()" />
+                                <img src="~/Upload/Product/@dr["proImage"].ToString()" class="rounded" style="height:30px;width:30px;" />
+                            </div>
+                            <div class="col-3">
+                                <label for="selectCategory" class="form-label"> Category</label>
+                                <select class="form-control" id="catId" name="cid">
+                                    <option value="@dr["catId"].ToString()" selected>@dr["catName"].ToString()</option>
+                                    <option value="">-- Select Category --</option>
+                                    @{
+
+                                        string querycat = "SELECT * FROM tblCategory where isDel='false' order by catName";
+                                        SqlDataAdapter sdacat = new SqlDataAdapter(querycat, con);
+                                        DataTable dtcat = new DataTable();
+
+                                        sdacat.Fill(dtcat);
+                                        con.Close();
+
+                                        foreach (DataRow drcat in dtcat.Rows)
+                                        {
+
+                                            <option value="@drcat["catId"]">
+                                                @drcat["catName"]
+                                            </option>
+
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-3">
+                                <label for="selectSubcategory" class="form-label"> SubCategory</label>
+                                <select class="form-control" id="subCatId" name="csid">
+                                    <option value="@dr["subCatId"].ToString()" selected>@dr["subCatName"].ToString()</option>
+                                    <option value="">-- Select SubCategory --</option>
+
+                                </select>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="mb-3">
+                                    <label for="selectSubcategory" class="form-label"> Model</label>
+                                    <input type="text" name="model" class="form-control" value="@dr["model"].ToString()" />
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="mb-3">
+                                    <label for="selectSubcategory" class="form-label"> Brand</label>
+                                    <select class="form-control" id="bId" name="bId">
+                                        <option value="@dr["brId"]">
+                                            @dr["brName"]
+                                        </option>
+                                        <option value="">-- Select Brand --</option>
+                                        @{
+
+                                            string bq = "SELECT * FROM tblbrand where isDel='false' order by brName";
+                                            SqlDataAdapter bs = new SqlDataAdapter(bq, con);
+                                            DataTable bdt = new DataTable();
+
+                                            bs.Fill(bdt);
+                                            con.Close();
+
+                                            foreach (DataRow bdr in bdt.Rows)
+                                            {
+
+                                                <option value="@bdr["brId"]">
+                                                    @bdr["brName"]
+                                                </option>
+
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <label for="inputPrice" class="form-label">Price </label>
+                                <input type="number" class="form-control" id="inputPrice" placeholder="Enter Product Price" name="pprice" value="@Convert.ToDecimal(dr["proPrice"])" />
+                            </div>
+                            <div class="col-6">
+                                <label for="inputDisPrice" class="form-label"> Discount Price </label>
+                                <input type="number" class="form-control" id="inputDisPrice" placeholder="Enter Product Discount Price" name="pdisprice" value="@Convert.ToDecimal(dr["proDisPrice"])" />
+                            </div>
+
+                            <div class="col-12">
+                                <label for="inputProductDescription" class="form-label">Description</label>
+                                <textarea class="form-control" id="inputProductDescription" rows="3" name="pdesc"> @dr["description"].ToString()</textarea>
+                            </div>
+
+                            <div class="col-sm-12">
+                                <div class="mb-3">
+                                    <label for="inputProductDescription" class="form-label">Short Description</label>
+                                    <textarea class="form-control" id="short_desc" rows="3" name="shortDesc">@dr["shortDesc"].ToString()</textarea>
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <div class="mb-3">
+                                    <label for="inputProductDescription" class="form-label">Uses</label>
+                                    <textarea class="form-control" id="Uses" rows="3" name="uses">@dr["uses"].ToString()</textarea>
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <div class="mb-3">
+                                    <label for="AdditionalInformation" class="form-label">Additional Information</label>
+                                    <textarea class="form-control" id="AdditionalInformation" rows="3" name="addInfo">@dr["addInfo"].ToString()</textarea>
+                                </div>
+                            </div><div class="col-sm-3">
+                                <div class="mb-3">
+                                    <label for="isPromo" class="form-label"> Is Promo </label>
+                                    <select class="form-control" name="isPromo">
+                                        @{
+                                            if ((int)dr["isPromo"] == 1)
+                                            {
+                                                <option value="1" selected>Yes</option>
+                                                <option value="0">No</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="1">Yes</option>
+                                                <option value="0" selected>No</option>
+                                            }
+                                        }
+
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="mb-3">
+                                    <label for="isFeatured" class="form-label"> Is Featured </label>
+                                    <select class="form-control" name="isFeatured">
+                                        @{
+                                            if ((int)dr["isFeatured"] == 1)
+                                            {
+                                                <option value="1" selected>Yes</option>
+                                                <option value="0">No</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="1">Yes</option>
+                                                <option value="0" selected>No</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="mb-3">
+                                    <label for="isTranding" class="form-label"> Is Tranding </label>
+                                    <select class="form-control" name="isTranding">
+                                        @{
+                                            if ((int)dr["isTranding"] == 1)
+                                            {
+                                                <option value="1" selected>Yes</option>
+                                                <option value="0">No</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="1">Yes</option>
+                                                <option value="0" selected>No</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="mb-3">
+                                    <label for="isDiscounted" class="form-label"> Is Discounted </label>
+                                    <select class="form-control" name="isDiscounted">
+                                        @{
+                                            if ((int)dr["isDiscounted"] == 1)
+                                            {
+                                                <option value="1" selected>Yes</option>
+                                                <option value="0">No</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="1">Yes</option>
+                                                <option value="0" selected>No</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-12 mt-2">
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary">Save Product</button>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div><!--end row-->
+            </div>
+        </form>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#catId").change(function () {
+            $.get("/Product/GetSubCategoryList", { catid: $("#catId").val() }, function (data) {
+
+                $("#subCatId").empty();
+
+                $.each(data, function (index, row) {
+                    $("#subCatId").append("<option value='" + row.subCatId + "'>" + row.subCatName + "</option>");
+                });
+            });
+        });
+    });
+</script>
+
